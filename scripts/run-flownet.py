@@ -4,10 +4,11 @@ from __future__ import print_function
 
 import os, sys, numpy as np
 import argparse
-from scipy import misc
+import imageio
 import caffe
 import tempfile
 from math import ceil
+from PIL import Image
 
 parser = argparse.ArgumentParser()
 parser.add_argument('caffemodel', help='path to model')
@@ -27,10 +28,12 @@ if(not os.path.exists(args.img1)): raise BaseException('img1 does not exist: '+a
 
 num_blobs = 2
 input_data = []
-img0 = misc.imread(args.img0)
+img0 = imageio.imread(args.img0)
+img0 = np.array(Image.fromarray(img0).resize((640, 360)))
 if len(img0.shape) < 3: input_data.append(img0[np.newaxis, np.newaxis, :, :])
 else:                   input_data.append(img0[np.newaxis, :, :, :].transpose(0, 3, 1, 2)[:, [2, 1, 0], :, :])
-img1 = misc.imread(args.img1)
+img1 = imageio.imread(args.img1)
+img1 = np.array(Image.fromarray(img1).resize((640, 360)))
 if len(img1.shape) < 3: input_data.append(img1[np.newaxis, np.newaxis, :, :])
 else:                   input_data.append(img1[np.newaxis, :, :, :].transpose(0, 3, 1, 2)[:, [2, 1, 0], :, :])
 
@@ -71,7 +74,7 @@ for blob_idx in range(num_blobs):
 
 #
 # There is some non-deterministic nan-bug in caffe
-# it seems to be a race-condition 
+# it seems to be a race-condition
 #
 print('Network forward pass using %s.' % args.caffemodel)
 i = 1
@@ -121,7 +124,7 @@ def writeFlow(name, flow):
     flow = flow.astype(np.float32)
     flow.tofile(f)
     f.flush()
-    f.close() 
+    f.close()
 
 writeFlow(args.out, blob)
 

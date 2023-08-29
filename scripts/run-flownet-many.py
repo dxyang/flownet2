@@ -4,7 +4,8 @@ from __future__ import print_function
 
 import os, sys, numpy as np
 import argparse
-from scipy import misc
+from PIL import Image
+import imageio
 import caffe
 import tempfile
 from math import ceil
@@ -40,10 +41,12 @@ for ent in ops:
 
     num_blobs = 2
     input_data = []
-    img0 = misc.imread(ent[0])
+    img0 = imageio.imread(ent[0])
+    img0 = np.array(Image.fromarray(img0).resize((640, 360)))
     if len(img0.shape) < 3: input_data.append(img0[np.newaxis, np.newaxis, :, :])
     else:                   input_data.append(img0[np.newaxis, :, :, :].transpose(0, 3, 1, 2)[:, [2, 1, 0], :, :])
-    img1 = misc.imread(ent[1])
+    img1 = imageio.imread(ent[1])
+    img1 = np.array(Image.fromarray(img1).resize((640, 360)))
     if len(img1.shape) < 3: input_data.append(img1[np.newaxis, np.newaxis, :, :])
     else:                   input_data.append(img1[np.newaxis, :, :, :].transpose(0, 3, 1, 2)[:, [2, 1, 0], :, :])
 
